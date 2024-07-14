@@ -1,5 +1,5 @@
 body{
-    background-size: cover;
+    background-size: 1920px 190vh;
     background-repeat: no-repeat;
     background-position: center;
     background-image: url(../img/background1.jpg);
@@ -52,7 +52,7 @@ input:hover{
     border-radius: 25px;
     margin-top: 20px;
 }
-h2, label{
+h2, label, .erro{
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     background-color: #ffffff;
@@ -87,3 +87,8 @@ button:hover{
     -webkit-box-shadow: 10px 10px 5px -5px rgba(0,0,0,0.5);
     -moz-box-shadow: 10px 10px 5px -5px rgba(0,0,0,0.5);
     }
+.erro{
+    background-color: #ff0000;
+    font-size: 14pt;
+    margin-top: 10px;
+}

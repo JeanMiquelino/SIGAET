@@ -1,0 +1,1 @@
+Token de autenticação inválido.
