@@ -11,13 +11,27 @@
     
 <?php
 session_start();
-$email = $_POST['email'];
-$_SESSION['pass'] = $_POST['pass'];
+function validateToken($stoken, $ctoken) {
+    return isset($stoken) && hash_equals($stoken, $ctoken);
+}
+
+// Verificação do token
+$stoken = $_SESSION['token'] ?? null;
+$ctoken = $_COOKIE['session_token'] ?? null;
+
+if (!isset($ctoken) || !validateToken($stoken, $ctoken)) {
+    // Token inválido ou não encontrado, tratar a autenticação falhou
+    header('Location: ./login.php?erro=002');
+    exit();
+}
+
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "eusers";
-$_SESSION['email'] = $email;
+$email = $_SESSION['email'];
+
 // Criação da conexão
 $conngeral = new mysqli($servername, $username, $password, $dbname);
 
@@ -38,8 +52,12 @@ $resultadogeral = $stmt->get_result();
 if ($resultadogeral && $resultadogeral->num_rows > 0) {
     $unidades = [];
     while ($rowgeral = $resultadogeral->fetch_assoc()) {
-        $unidades[] = $rowgeral['unidade'];
+        // Divide a lista de unidades separadas por vírgulas
+        $unidades = array_merge($unidades, explode(',', $rowgeral['unidade']));
     }
+    
+    // Remove duplicatas se houver
+    $unidades = array_unique($unidades);
     
     // Verifica a quantidade de unidades
     if (count($unidades) == 1) {

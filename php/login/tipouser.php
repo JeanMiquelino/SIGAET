@@ -11,14 +11,27 @@
 <?php
 session_start();
 
-$email = $_SESSION['email'];
-$pass = $_SESSION['pass'];
+// Função de validação do token
+function validateToken($stoken, $ctoken) {
+    return isset($stoken) && hash_equals($stoken, $ctoken);
+}
 
+// Verificação do token
+$stoken = $_SESSION['token'] ?? null;
+$ctoken = $_COOKIE['session_token'] ?? null;
+
+if (!isset($ctoken) || !validateToken($stoken, $ctoken)) {
+    // Token inválido ou não encontrado, tratar a autenticação falhou
+    header('Location: ./login.php?erro=002');
+    exit();
+}
+
+$email = $_SESSION['email'] ?? '';
 if (isset($_POST['unidade'])) {
     $unidade = $_POST['unidade'];
     $_SESSION['unidade'] = $unidade;
 } else {
-    $unidade = $_SESSION['unidade'];
+    $unidade = $_SESSION['unidade'] ?? '';
 }
 
 // Conexão com o banco de dados
@@ -44,24 +57,12 @@ $resultadouni = $stmt->get_result();
 
 if ($resultadouni && $resultadouni->num_rows > 0) {
     $rowuni = $resultadouni->fetch_assoc();
-    if ($rowuni['pass'] != $pass) {
-        header("Location: ../login/login.php?erro=004");
-        exit();
-    }
     $tipouser = $rowuni['tipouser'];
     $_SESSION['nome'] = $rowuni['nome'];
 
     // Armazena informações na sessão
     $_SESSION['login_time'] = date("Y-m-d H:i:s");
     $_SESSION['tipouser'] = $tipouser;
-    function generateToken($length = 32) {
-        return bin2hex(random_bytes($length));
-    }
-    
-    $_SESSION['token'] = generateToken();
-    
-    // Armazenar o token no cliente como um cookie
-    setcookie('session_token', $_SESSION['token'], time() + 3600, '/', '', true, true);
     
     // Contagem dos tipos de usuário
     $tipos = explode(",", $tipouser);
@@ -82,6 +83,7 @@ if ($resultadouni && $resultadouni->num_rows > 0) {
             echo "<button type='submit' name='tipouser' value='" . htmlspecialchars($tipo) . "'>" . mb_convert_case(htmlspecialchars($tipo), MB_CASE_TITLE, 'UTF-8') . "</button>";
         }
         echo "</form>";
+        echo "</div>"; // Adicionando o fechamento da div
     }
 
     // Fecha a conexão com a unidade

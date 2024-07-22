@@ -41,7 +41,7 @@
 
         ?>
         <br>
-        <form method="post" action="../../php/login/selectunidade.php">
+        <form method="post" action="../../php/login/verificacao.php">
             <div id="container-email">
             <label for="email">Email Institucional</label>
             <input name="email" id="email" type="email" required>
